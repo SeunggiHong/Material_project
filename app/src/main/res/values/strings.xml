@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">material_project</string>
+    <string name="hint_helper">검색어를 입력하세요</string>
+    <string name="hint_search">사진검색</string>
+</resources>
