@@ -32,7 +32,7 @@
                 android:id="@+id/rb_search1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="사진검색"
+                android:text="@string/hint_rb1"
                 android:layout_marginEnd="20dp"
                 android:checked="true"/>
 
@@ -40,7 +40,7 @@
                 android:id="@+id/rb_search2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="사용자검색"
+                android:text="@string/hint_rb2"
                 android:checked="false"/>
         </RadioGroup>
 
@@ -52,6 +52,7 @@
             app:boxStrokeColor="@color/design_default_color_primary"
             app:helperText="@string/hint_helper"
             app:counterMaxLength="12"
+            app:counterEnabled="true"
             app:endIconMode="clear_text"
             app:startIconDrawable="@drawable/ic_baseline_insert_photo_24"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -70,6 +71,7 @@
 
         <include
             layout="@layout/layout_button_search"
+            android:visibility="invisible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"/>

@@ -27,13 +27,13 @@ class MainActivity : AppCompatActivity() {
             when(checkId){
                 R.id.rb_search1 -> {
                     Log.d(Constants.TAG, "photo search")
-                    textField.hint = "사진 검색"
+                    textField.hint = resources.getString(R.string.hint_rb1)
                     textField.startIconDrawable = resources.getDrawable(R.drawable.ic_baseline_insert_photo_24, resources.newTheme())
                     this.current_Search = SEARCH_TYPE.PHOTO
                 }
                 R.id.rb_search2 -> {
                     Log.d(Constants.TAG, "person search")
-                    textField.hint = "사용자 검색"
+                    textField.hint = resources.getString(R.string.hint_rb2)
                     textField.startIconDrawable = resources.getDrawable(R.drawable.ic_baseline_person_24, resources.newTheme())
                     this.current_Search = SEARCH_TYPE.USER
                 }
@@ -46,7 +46,6 @@ class MainActivity : AppCompatActivity() {
                 fl_search.visibility = View.VISIBLE
                 sc_view.scrollTo(0, 200)
                 textField.helperText = " "
-
             } else {
                 fl_search.visibility = View.INVISIBLE
                 textField.helperText = resources.getString(R.string.hint_helper)
@@ -59,17 +58,18 @@ class MainActivity : AppCompatActivity() {
 
         btn_search.setOnClickListener {
             Log.d(Constants.TAG, "btn_search clicked current_Search :  $current_Search")
-
+            this.handleSearchButton()
         }
 
     }
 
     private fun handleSearchButton() {
         btn_progress.visibility = View.VISIBLE
-        btn_search.text = ""
+        btn_search.visibility = View.INVISIBLE
+
         Handler().postDelayed({
             btn_progress.visibility = View.INVISIBLE
-            btn_search.text = "검색"
+            btn_search.visibility = View.VISIBLE
         }, 1500)
     }
 
