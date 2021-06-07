@@ -8,7 +8,9 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.example.material_project.retrofit.Retrofit_Manager
 import com.example.material_project.utils.Constants
+import com.example.material_project.utils.RESPONSE_TYPE
 import com.example.material_project.utils.SEARCH_TYPE
 import com.example.material_project.utils.onMyTextChanged
 import kotlinx.android.synthetic.main.activity_main.*
@@ -58,6 +60,19 @@ class MainActivity : AppCompatActivity() {
 
         btn_search.setOnClickListener {
             Log.d(Constants.TAG, "btn_search clicked current_Search :  $current_Search")
+
+            Retrofit_Manager.instance.searchPhotos(searchTerm = et_search.toString(), completion = {
+                responseType, responseBody ->
+                when(responseType) {
+                    RESPONSE_TYPE.SUCCESS -> {
+                        Log.d(Constants.TAG, "api call success : $responseBody")
+                    }
+                    RESPONSE_TYPE.FAIL -> {
+                        Toast.makeText(this, "Unsplsh api error", Toast.LENGTH_SHORT).show()
+                        Log.d(Constants.TAG, "api call fail : $responseBody")
+                    }
+                }
+            })
             this.handleSearchButton()
         }
 
@@ -72,6 +87,5 @@ class MainActivity : AppCompatActivity() {
             btn_search.visibility = View.VISIBLE
         }, 1500)
     }
-
 
 }
