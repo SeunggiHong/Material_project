@@ -1,5 +1,6 @@
 package com.example.material_project
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -60,16 +61,23 @@ class MainActivity : AppCompatActivity() {
 
         btn_search.setOnClickListener {
             Log.d(Constants.TAG, "btn_search clicked current_Search :  $current_Search")
+            val userSearchInput = et_search.text.toString()
 
-            Retrofit_Manager.instance.searchPhotos(searchTerm = et_search.toString(), completion = {
-                responseType, responseBody ->
+            Retrofit_Manager.instance.searchPhotos(searchTerm = et_search.text.toString(), completion = {
+                responseType, responseDataArrayList ->
                 when(responseType) {
                     RESPONSE_TYPE.SUCCESS -> {
-                        Log.d(Constants.TAG, "api call success : $responseBody")
+                        Log.d(Constants.TAG, "api call success : ${responseDataArrayList?.size}")
+                        val intent = Intent(this, PhotoActivity::class.java)
+                        val bundle = Bundle()
+                        bundle.putSerializable("photo_array_list", responseDataArrayList)
+                        intent.putExtra("array_bundle", bundle)
+                        intent.putExtra("search_term", userSearchInput)
+                        startActivity(intent)
                     }
                     RESPONSE_TYPE.FAIL -> {
                         Toast.makeText(this, "Unsplsh api error", Toast.LENGTH_SHORT).show()
-                        Log.d(Constants.TAG, "api call fail : $responseBody")
+                        Log.d(Constants.TAG, "api call fail : $responseDataArrayList")
                     }
                 }
             })

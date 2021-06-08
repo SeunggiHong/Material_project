@@ -1,6 +1,10 @@
 package com.example.material_project.retrofit
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import com.example.material_project.App
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.UNSPLASH_API
 import com.example.material_project.utils.isJsonArray
@@ -50,7 +54,16 @@ object Retrofit_Clint {
                     .method(originalRequest.method, originalRequest.body)
                     .build()
 
-                return chain.proceed(finalRequest)
+//                return chain.proceed(finalRequest)
+                val response = chain.proceed(finalRequest)
+
+                if(response.code != 200) {
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(App.instance, "${response.code} error", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                return response
             }
         })
         client.addInterceptor(baseParameterInterceptor)
