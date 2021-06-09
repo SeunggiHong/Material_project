@@ -9,9 +9,10 @@ enum class SEARCH_TYPE {
     USER
 }
 
-enum class RESPONSE_TYPE{
+enum class RESPONSE_STATUS{
     SUCCESS,
-    FAIL
+    FAIL,
+    NO_CONTENT
 }
 
 object UNSPLASH_API {

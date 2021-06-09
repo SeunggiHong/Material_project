@@ -5,4 +5,9 @@
     <string name="hint_rb1">photo search</string>
     <string name="hint_rb2">user search</string>
     <string name="btn_search">Search</string>
+    <string name="page_title">photo search</string>
+    <string name="menu_search">Search</string>
+    <string name="menu_more">More</string>
+    <string name="content_description_search">search photo</string>
+    <string name="content_description_more">more menu</string>
 </resources>
