@@ -10,4 +10,8 @@
     <string name="menu_more">More</string>
     <string name="content_description_search">search photo</string>
     <string name="content_description_more">more menu</string>
+    <string name="search_view_edittext_msg">Search terms can be up to 12 characters long.</string>
+    <string name="search_save">Save search terms</string>
+    <string name="search_delete">delete all</string>
+
 </resources>

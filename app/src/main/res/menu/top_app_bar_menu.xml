@@ -4,14 +4,16 @@
 
 
     <item
-        android:id="@+id/search"
+        android:id="@+id/search_menu"
         android:icon="@drawable/ic_baseline_manage_search_24"
         android:title="@string/menu_search"
         android:contentDescription="@string/content_description_search"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        />
 
     <item
-        android:id="@+id/more"
+        android:id="@+id/more_menu"
         android:title="@string/menu_more"
         android:icon="@drawable/ic_baseline_more_vert_24"
         android:contentDescription="@string/content_description_more"
