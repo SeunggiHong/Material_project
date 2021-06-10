@@ -1,7 +1,7 @@
 package com.example.material_project.retrofit
 
 import android.util.Log
-import com.example.material_project.model.Photo
+import com.example.material_project.model.PhotoData
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.RESPONSE_STATUS
 import com.example.material_project.utils.UNSPLASH_API
@@ -17,7 +17,7 @@ class Retrofit_Manager {
 
     private val retrofitInterfcae: Retrofit_Interface? = Retrofit_Clint.getClient(UNSPLASH_API.BASE_URL)?.create(Retrofit_Interface::class.java)
 
-    fun searchPhotos(searchTerm: String?, completion: (RESPONSE_STATUS, ArrayList<Photo>?) -> Unit) {
+    fun searchPhotos(searchTerm: String?, completion: (RESPONSE_STATUS, ArrayList<PhotoData>?) -> Unit) {
         val term = searchTerm?: ""
 
         val call: Call<JsonElement> = retrofitInterfcae?.searchPhoto(searchTerm = term) ?: return
@@ -34,7 +34,7 @@ class Retrofit_Manager {
                 when(response.code()){
                     200 -> {
                         response.body()?.let{
-                            var parsedPhotoDateArray = ArrayList<Photo>()
+                            var parsedPhotoDateArray = ArrayList<PhotoData>()
                             val body = it.asJsonObject
                             val results = body.getAsJsonArray("results")
                             val total = body.get("total").asInt
@@ -54,7 +54,7 @@ class Retrofit_Manager {
                                     val formatter = SimpleDateFormat("yyyy년\nMM월 dd일")
                                     val outputDateString = formatter.format(parser.parse(createdAt))
 
-                                    val photoItem = Photo(
+                                    val photoItem = PhotoData(
                                         author     = userName,
                                         likesCount = likeCount,
                                         thumbnail  = thumnailLink,

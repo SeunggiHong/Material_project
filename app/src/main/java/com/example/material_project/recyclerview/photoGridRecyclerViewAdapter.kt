@@ -3,12 +3,11 @@ package com.example.material_project.recyclerview
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.material_project.App
 import com.example.material_project.R
-import com.example.material_project.model.Photo
+import com.example.material_project.model.PhotoData
 
 class PhotoGridRecyclerViewAdapter: RecyclerView.Adapter<PhotoItemViewHolder>() {
-    private var photoList = ArrayList<Photo>()
+    private var photoList = ArrayList<PhotoData>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoItemViewHolder {
         val photoItemViewHolder = PhotoItemViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.photo_item, parent, false))
@@ -23,7 +22,7 @@ class PhotoGridRecyclerViewAdapter: RecyclerView.Adapter<PhotoItemViewHolder>() 
         holder.bindWithView(this.photoList[position])
     }
 
-    fun submitlist(photoList: ArrayList<Photo>) {
+    fun submitlist(photoList: ArrayList<PhotoData>) {
         this.photoList = photoList
     }
 

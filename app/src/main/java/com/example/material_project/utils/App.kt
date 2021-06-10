@@ -1,4 +1,4 @@
-package com.example.material_project
+package com.example.material_project.utils
 
 import android.app.Application
 

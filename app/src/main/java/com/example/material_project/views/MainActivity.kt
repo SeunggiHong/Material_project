@@ -1,18 +1,17 @@
-package com.example.material_project
+package com.example.material_project.views
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.example.material_project.R
 import com.example.material_project.retrofit.Retrofit_Manager
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.RESPONSE_STATUS
 import com.example.material_project.utils.SEARCH_TYPE
 import com.example.material_project.utils.onMyTextChanged
-import com.example.material_project.views.PhotoActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_button_search.*
 

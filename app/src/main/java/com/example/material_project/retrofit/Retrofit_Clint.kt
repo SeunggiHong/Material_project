@@ -4,7 +4,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import com.example.material_project.App
+import com.example.material_project.utils.App
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.UNSPLASH_API
 import com.example.material_project.utils.isJsonArray
