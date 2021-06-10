@@ -22,7 +22,7 @@ class PhotoGridRecyclerViewAdapter: RecyclerView.Adapter<PhotoItemViewHolder>() 
         holder.bindWithView(this.photoList[position])
     }
 
-    fun submitlist(photoList: ArrayList<PhotoData>) {
+    fun submitList(photoList: ArrayList<PhotoData>) {
         this.photoList = photoList
     }
 

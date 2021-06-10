@@ -18,7 +18,6 @@ class PhotoItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         photoCreatedAtText.text = photoItem.createdAt
         photoLikesCountText.text = photoItem.likesCount.toString()
         Glide.with(App.instance).load(photoItem.thumbnail).placeholder(R.drawable.ic_baseline_insert_photo_24).into(photoImageView)
-
     }
 
 }

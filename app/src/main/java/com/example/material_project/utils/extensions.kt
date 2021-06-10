@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
 import java.text.SimpleDateFormat
+
 import java.util.*
 
 fun EditText.onMyTextChanged(completion: (Editable?) -> Unit) {
@@ -29,7 +30,7 @@ fun String?.isJsonArray(): Boolean {
     return this?.startsWith("[") == true && this.endsWith(("]"))
 }
 
-fun Date.toString() : String {
+fun Date.toSimpleString() : String {
     val format = SimpleDateFormat("HH:mm:ss")
     return format.format(this)
 }

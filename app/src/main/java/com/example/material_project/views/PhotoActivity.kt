@@ -14,13 +14,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.material_project.R
 import com.example.material_project.model.PhotoData
 import com.example.material_project.model.SearchData
 import com.example.material_project.recyclerview.PhotoGridRecyclerViewAdapter
+import com.example.material_project.recyclerview.SearchHistRecyclerViewAdapter
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.Constants.TAG
 import com.example.material_project.utils.SharedPref_Manager
+import com.example.material_project.utils.toSimpleString
 import kotlinx.android.synthetic.main.activity_photo.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -29,6 +32,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     private var photoList = ArrayList<PhotoData>()
     private var searchHistoryList = ArrayList<SearchData>()
     private lateinit var photoGridRecyclerViewAdapter: PhotoGridRecyclerViewAdapter
+    private lateinit var searchHistRecyclerViewAdapter: SearchHistRecyclerViewAdapter
     private lateinit var mSearchView: SearchView
     private lateinit var mSearchEditText: EditText
 
@@ -39,20 +43,41 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
 
         val bundle = intent.getBundleExtra("array_bundle")
         val searchTerm = intent.getStringExtra("search_term")
-
-        photoList = bundle?.getSerializable("photo_array_list") as ArrayList<PhotoData>
-
-        this.photoGridRecyclerViewAdapter = PhotoGridRecyclerViewAdapter()
-        this.photoGridRecyclerViewAdapter.submitlist(photoList)
-        rc_view.layoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
-        rc_view.adapter = this.photoGridRecyclerViewAdapter
-
         topAppBar.title = searchTerm
         setSupportActionBar(topAppBar)
+
+        photoList = bundle?.getSerializable("photo_array_list") as ArrayList<PhotoData>
+        this.setPhotohRecyclerView(this.photoList)
 
         this.searchHistoryList = SharedPref_Manager.getSearchHistoryList() as ArrayList<SearchData>
         this.searchHistoryList.forEach{
             Log.d(TAG, "저장된 검색 기록 : ${it.term}, ${it.timestamp}")
+        }
+        this.setSearchRecyclerView(this.searchHistoryList)
+    }
+
+    private fun setPhotohRecyclerView(PhotoList: ArrayList<PhotoData>) {
+        this.photoGridRecyclerViewAdapter = PhotoGridRecyclerViewAdapter()
+        this.photoGridRecyclerViewAdapter.submitList(PhotoList)
+        //역순 정렬
+        val photoGridLayoutManager = GridLayoutManager(this, 2, GridLayoutManager.VERTICAL, false)
+
+        rc_view.apply {
+            layoutManager = photoGridLayoutManager
+            adapter = photoGridRecyclerViewAdapter
+        }
+    }
+
+    private fun setSearchRecyclerView(searchHistoryList: ArrayList<SearchData>) {
+        this.searchHistRecyclerViewAdapter = SearchHistRecyclerViewAdapter()
+        this.searchHistRecyclerViewAdapter.submitList(searchHistoryList)
+        //역순 정렬
+        val seachLinearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,true)
+        seachLinearLayoutManager.stackFromEnd = true
+        rc_search_view.apply {
+            layoutManager = seachLinearLayoutManager
+            this.scrollToPosition(searchHistRecyclerViewAdapter.itemCount - 1)
+            adapter = searchHistRecyclerViewAdapter
         }
     }
 
@@ -95,7 +120,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         Log.d(TAG, "onQueryTextSubmit: query : ${query}")
         if(!query.isNullOrEmpty()) {
             this.topAppBar.title = query
-            val newSearchData = SearchData(term = query, timestamp = Date().toString())
+            val newSearchData = SearchData(term = query, timestamp = Date().toSimpleString())
             this.searchHistoryList.add(newSearchData)
 
             SharedPref_Manager.storeSearchHistoryList(this.searchHistoryList)
