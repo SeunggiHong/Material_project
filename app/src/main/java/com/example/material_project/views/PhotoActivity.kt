@@ -57,6 +57,16 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
             Log.d(TAG, "저장된 검색 기록 : ${it.term}, ${it.timestamp}")
         }
         this.setSearchRecyclerView(this.searchHistoryList)
+
+        sw_search.isChecked = SharedPref_Manager.checkSearchHistoryMode()
+
+        if(searchTerm!!.isNotEmpty()) {
+            val term = searchTerm?.let{
+                it
+            }?: ""
+            this.filterSearchHist(term)
+        }
+
         handleSearchViewUi()
     }
 
@@ -125,10 +135,8 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         Log.d(TAG, "onQueryTextSubmit: query : ${query}")
         if(!query.isNullOrEmpty()) {
             this.topAppBar.title = query
-            val newSearchData = SearchData(term = query, timestamp = Date().toSimpleString())
-            this.searchHistoryList.add(newSearchData)
-
-            SharedPref_Manager.storeSearchHistoryList(this.searchHistoryList)
+            this.filterSearchHist(query)
+            this.searchPhotApiCall(query)
         }
 
         this.topAppBar.collapseActionView()
@@ -150,8 +158,10 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
             sw_search -> {
                 if(isChecked) {
                     Log.d(TAG, "onCheckedChanged: $isChecked")
+                    SharedPref_Manager.setSearchHistoryMode(isActive = true)
                 } else {
                     Log.d(TAG, "onCheckedChanged: $isChecked")
+                    SharedPref_Manager.setSearchHistoryMode(isActive = false)
                 }
             }
         }
@@ -182,7 +192,8 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         val queryString = this.searchHistoryList[position].term
         searchPhotApiCall(queryString)
         topAppBar.title = queryString
-
+        this.filterSearchHist(searchTerm = queryString)
+        this.topAppBar.collapseActionView()
     }
 
     private fun searchPhotApiCall(query: String) {
@@ -219,4 +230,23 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         }
     }
 
+    private fun filterSearchHist(searchTerm : String){
+        if(SharedPref_Manager.checkSearchHistoryMode()) {
+            var removeArray = ArrayList<Int>()
+            this.searchHistoryList.forEachIndexed {index, searchDataItem ->
+                if (searchDataItem.term == searchTerm) {
+                    removeArray.add(index)
+                }
+            }
+            removeArray.forEach {
+                this.searchHistoryList.removeAt(it)
+            }
+
+            var searchData = SearchData(term = searchTerm, timestamp = Date().toSimpleString())
+            this.searchHistoryList.add(searchData)
+            SharedPref_Manager.storeSearchHistoryList(this.searchHistoryList)
+
+            this.searchHistRecyclerViewAdapter.notifyDataSetChanged()
+        }
+    }
 }
