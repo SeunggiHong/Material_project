@@ -89,7 +89,7 @@
             android:id="@+id/tv_recent_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="최근 검색어"
+            android:text="recent searches"
             android:layout_margin="10dp"
             android:textSize="16sp"
             android:textStyle="bold"

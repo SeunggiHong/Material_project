@@ -9,6 +9,23 @@ import com.google.gson.Gson
 object SharedPref_Manager {
     private const val SHARED_SHEARCH_HISTORY = "shared_search_history"
     private const val KEY_SEARCH_HISTORY = "key_search_history"
+    private const val SHARED_SEARCH_HISTORY_MODE = "shared_search_history_mode"
+    private const val KEY_SEARCH_HISTORY_MODE = "key_serach_hstiroy_mode"
+
+    //검색어 저장 모드
+    fun setSearchHistoryMode(isActive: Boolean) {
+        Log.d(TAG, "setSearchHistoryMode - $isActive")
+        val shared = App.instance.getSharedPreferences(SHARED_SEARCH_HISTORY_MODE, Context.MODE_PRIVATE)
+        val editor = shared.edit()
+        editor.putBoolean(KEY_SEARCH_HISTORY_MODE, isActive)
+        editor.apply()
+    }
+
+    //검색어 저장 모드 체크
+    fun checkSearchHistoryMode() : Boolean {
+        val shared = App.instance.getSharedPreferences(SHARED_SEARCH_HISTORY_MODE, Context.MODE_PRIVATE)
+        return shared.getBoolean(KEY_SEARCH_HISTORY_MODE, false)
+    }
 
     // 검색 목록을 저장
     fun storeSearchHistoryList(searchHistoryList: MutableList<SearchData>){
@@ -33,5 +50,13 @@ object SharedPref_Manager {
         }
 
         return storedSearchHistoryList
+    }
+
+    //검색 모드 지우기
+    fun clearAllHistoryList() {
+        val shared = App.instance.getSharedPreferences(SHARED_SHEARCH_HISTORY, Context.MODE_PRIVATE)
+        val editor = shared.edit()
+        editor.clear()
+        editor.apply()
     }
 }

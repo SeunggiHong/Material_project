@@ -19,16 +19,19 @@ import com.example.material_project.R
 import com.example.material_project.model.PhotoData
 import com.example.material_project.model.SearchData
 import com.example.material_project.recyclerview.PhotoGridRecyclerViewAdapter
+import com.example.material_project.recyclerview.SearchHistInterface
 import com.example.material_project.recyclerview.SearchHistRecyclerViewAdapter
+import com.example.material_project.retrofit.Retrofit_Manager
 import com.example.material_project.utils.Constants
 import com.example.material_project.utils.Constants.TAG
+import com.example.material_project.utils.RESPONSE_STATUS
 import com.example.material_project.utils.SharedPref_Manager
 import com.example.material_project.utils.toSimpleString
 import kotlinx.android.synthetic.main.activity_photo.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener {
+class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener, SearchHistInterface {
     private var photoList = ArrayList<PhotoData>()
     private var searchHistoryList = ArrayList<SearchData>()
     private lateinit var photoGridRecyclerViewAdapter: PhotoGridRecyclerViewAdapter
@@ -54,6 +57,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
             Log.d(TAG, "저장된 검색 기록 : ${it.term}, ${it.timestamp}")
         }
         this.setSearchRecyclerView(this.searchHistoryList)
+        handleSearchViewUi()
     }
 
     private fun setPhotohRecyclerView(PhotoList: ArrayList<PhotoData>) {
@@ -69,7 +73,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     }
 
     private fun setSearchRecyclerView(searchHistoryList: ArrayList<SearchData>) {
-        this.searchHistRecyclerViewAdapter = SearchHistRecyclerViewAdapter()
+        this.searchHistRecyclerViewAdapter = SearchHistRecyclerViewAdapter(this)
         this.searchHistRecyclerViewAdapter.submitList(searchHistoryList)
         //역순 정렬
         val seachLinearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,true)
@@ -96,6 +100,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
                     true -> {
                         Log.d(TAG, "onCreateOptionsMenu: $hasExpanded")
                         li_view.visibility = View.VISIBLE
+                        handleSearchViewUi()
                     }
                     false -> {
                         Log.d(TAG, "onCreateOptionsMenu: $hasExpanded")
@@ -156,8 +161,61 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     override fun onClick(view: View?) {
         when(view) {
             btn_delete -> {
-                Log.d(TAG, "onClick: btn_delete")
+                SharedPref_Manager.clearAllHistoryList()
+                this.searchHistoryList.clear()
+
+                handleSearchViewUi()
             }
+        }
+    }
+
+    override fun onSearchItemDeleteClicked(position: Int) {
+        Log.d(TAG, "onSearchItemDeleteClicked called position : $position" )
+        this.searchHistoryList.removeAt(position)
+        SharedPref_Manager.storeSearchHistoryList(this.searchHistoryList)
+        this.searchHistRecyclerViewAdapter.notifyDataSetChanged()
+        handleSearchViewUi()
+    }
+
+    override fun onSearchItemClicked(position: Int) {
+        Log.d(TAG, "onSearchItemClicked called" )
+        val queryString = this.searchHistoryList[position].term
+        searchPhotApiCall(queryString)
+        topAppBar.title = queryString
+
+    }
+
+    private fun searchPhotApiCall(query: String) {
+        Retrofit_Manager.instance.searchPhotos(searchTerm = query,completion = {status, list ->
+            when(status) {
+                RESPONSE_STATUS.SUCCESS -> {
+                    Log.d(TAG, "searchPhotApiCall: SUCCESS")
+                    if (list != null) {
+                        this.photoList.clear()
+                        this.photoList = list
+                        this.photoGridRecyclerViewAdapter.submitList(this.photoList)
+                        this.photoGridRecyclerViewAdapter.notifyDataSetChanged()
+                    }
+                }
+                RESPONSE_STATUS.NO_CONTENT -> {
+                    Toast.makeText(this, "No results were found for your search.", Toast.LENGTH_SHORT).show()
+                }
+                RESPONSE_STATUS.FAIL -> {
+                    Log.d(TAG, "searchPhotApiCall: FAIL")
+                }
+            }
+        })
+    }
+
+    private fun handleSearchViewUi() {
+        if(this.searchHistoryList.size > 0){
+            rc_search_view.visibility = View.VISIBLE
+            tv_recent_search.visibility = View.VISIBLE
+            btn_delete.visibility = View.VISIBLE
+        } else {
+            rc_search_view.visibility = View.INVISIBLE
+            tv_recent_search.visibility = View.INVISIBLE
+            btn_delete.visibility = View.INVISIBLE
         }
     }
 
