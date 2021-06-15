@@ -22,20 +22,23 @@ import com.example.material_project.recyclerview.PhotoGridRecyclerViewAdapter
 import com.example.material_project.recyclerview.SearchHistInterface
 import com.example.material_project.recyclerview.SearchHistRecyclerViewAdapter
 import com.example.material_project.retrofit.Retrofit_Manager
-import com.example.material_project.utils.Constants
+import com.example.material_project.utils.*
 import com.example.material_project.utils.Constants.TAG
-import com.example.material_project.utils.RESPONSE_STATUS
-import com.example.material_project.utils.SharedPref_Manager
-import com.example.material_project.utils.toSimpleString
 import com.jakewharton.rxbinding4.widget.textChanges
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.subscribeBy
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_photo.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
+import kotlin.coroutines.CoroutineContext
 
 class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener, SearchHistInterface {
     private var photoList = ArrayList<PhotoData>()
@@ -45,8 +48,12 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     private lateinit var mSearchView: SearchView
     private lateinit var mSearchEditText: EditText
 
-    //옵저버 제거를 위한
-    private var mCompositeDisposable = CompositeDisposable()
+    private var mCoroutinJob : Job = Job()
+    private val myCorutinContext : CoroutineContext
+        get() = Dispatchers.IO + mCoroutinJob
+
+//    //옵저버 제거를 위한
+//    private var mCompositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +87,8 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     }
 
     override fun onDestroy() {
-        mCompositeDisposable.clear()
+//        mCompositeDisposable.clear()
+        myCorutinContext.cancel()
         super.onDestroy()
     }
 
@@ -133,24 +141,35 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
                 }
             }
             mSearchEditText = this.findViewById(androidx.appcompat.R.id.search_src_text)
-            val editTextChangeObserver = mSearchEditText.textChanges()
-            val editTextSubscribtion : Disposable = editTextChangeObserver.debounce(2000, TimeUnit.MILLISECONDS)
-                .subscribeOn(Schedulers.io()).subscribeBy(
-                    onNext = {
-                        Log.d("RX2011", "onCreateOptionsMenu - onNext : $it")
-                        if (it.isNotEmpty()) {
-                            searchPhotApiCall(it.toString())
-                        }
-                    },
-                    onComplete = {
-                        Log.d("RX2011", "onCreateOptionsMenu - onComplete")
-                    },
-                    onError = {
-                        Log.d("RX2011", "onCreateOptionsMenu -  onError : $it")
+//            val editTextChangeObserver = mSearchEditText.textChanges()
+//            val editTextSubscribtion : Disposable = editTextChangeObserver.debounce(2000, TimeUnit.MILLISECONDS)
+//                .subscribeOn(Schedulers.io()).subscribeBy(
+//                    onNext = {
+//                        Log.d("RX2011", "onCreateOptionsMenu - onNext : $it")
+//                        if (it.isNotEmpty()) {
+//                            searchPhotApiCall(it.toString())
+//                        }
+//                    },
+//                    onComplete = {
+//                        Log.d("RX2011", "onCreateOptionsMenu - onComplete")
+//                    },
+//                    onError = {
+//                        Log.d("RX2011", "onCreateOptionsMenu -  onError : $it")
+//                    }
+//                )
+//
+//            mCompositeDisposable.add(editTextSubscribtion)
+            GlobalScope.launch(context = myCorutinContext) {
+                val edittextFlow = mSearchEditText.textChangesToFlow()
+                edittextFlow
+                    .debounce(2000)
+                    .filter {
+                        it?.length!! > 0
                     }
-                )
-
-            mCompositeDisposable.add(editTextSubscribtion)
+                    .onEach {
+                    Log.d(TAG, "edittextFlow: Globalscope : $it")
+                }.launchIn(this)
+            }
 
         }
         this.mSearchEditText.apply {
