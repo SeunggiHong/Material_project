@@ -27,8 +27,14 @@ import com.example.material_project.utils.Constants.TAG
 import com.example.material_project.utils.RESPONSE_STATUS
 import com.example.material_project.utils.SharedPref_Manager
 import com.example.material_project.utils.toSimpleString
+import com.jakewharton.rxbinding4.widget.textChanges
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.kotlin.subscribeBy
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_photo.*
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
 
 class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, CompoundButton.OnCheckedChangeListener, View.OnClickListener, SearchHistInterface {
@@ -38,6 +44,9 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     private lateinit var searchHistRecyclerViewAdapter: SearchHistRecyclerViewAdapter
     private lateinit var mSearchView: SearchView
     private lateinit var mSearchEditText: EditText
+
+    //옵저버 제거를 위한
+    private var mCompositeDisposable = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,6 +77,11 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         }
 
         handleSearchViewUi()
+    }
+
+    override fun onDestroy() {
+        mCompositeDisposable.clear() 
+        super.onDestroy()
     }
 
     private fun setPhotohRecyclerView(PhotoList: ArrayList<PhotoData>) {
@@ -109,7 +123,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
                 when(hasExpanded) {
                     true -> {
                         Log.d(TAG, "onCreateOptionsMenu: $hasExpanded")
-                        li_view.visibility = View.VISIBLE
+//                        li_view.visibility = View.VISIBLE
                         handleSearchViewUi()
                     }
                     false -> {
@@ -119,6 +133,22 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
                 }
             }
             mSearchEditText = this.findViewById(androidx.appcompat.R.id.search_src_text)
+            val editTextChangeObserver = mSearchEditText.textChanges()
+            val editTextSubscribtion : Disposable = editTextChangeObserver.debounce(800, TimeUnit.MILLISECONDS)
+                .subscribeOn(Schedulers.io()).subscribeBy(
+                    onNext = {
+                        Log.d(TAG, "onCreateOptionsMenu - onNext : $it")
+                    },
+                    onComplete = {
+                        Log.d(TAG, "onCreateOptionsMenu - onComplete")
+                    },
+                    onError = {
+                        Log.d(TAG, "onCreateOptionsMenu -  onError : $it")
+                    }
+                )
+
+            mCompositeDisposable.add(editTextSubscribtion)
+
         }
         this.mSearchEditText.apply {
             this.filters = arrayOf(InputFilter.LengthFilter(12))
@@ -148,6 +178,10 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
         val userInputText = newText ?: ""
         if (userInputText.count() == 12){
             Toast.makeText(this, R.string.search_view_edittext_msg,Toast.LENGTH_SHORT).show()
+        }
+
+        if (userInputText.length in 1..12) {
+            searchPhotApiCall(userInputText)
         }
 
         return true
