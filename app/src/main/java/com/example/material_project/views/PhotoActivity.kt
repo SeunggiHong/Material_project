@@ -80,7 +80,7 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
     }
 
     override fun onDestroy() {
-        mCompositeDisposable.clear() 
+        mCompositeDisposable.clear()
         super.onDestroy()
     }
 
@@ -134,16 +134,19 @@ class PhotoActivity: AppCompatActivity(), SearchView.OnQueryTextListener, Compou
             }
             mSearchEditText = this.findViewById(androidx.appcompat.R.id.search_src_text)
             val editTextChangeObserver = mSearchEditText.textChanges()
-            val editTextSubscribtion : Disposable = editTextChangeObserver.debounce(800, TimeUnit.MILLISECONDS)
+            val editTextSubscribtion : Disposable = editTextChangeObserver.debounce(2000, TimeUnit.MILLISECONDS)
                 .subscribeOn(Schedulers.io()).subscribeBy(
                     onNext = {
-                        Log.d(TAG, "onCreateOptionsMenu - onNext : $it")
+                        Log.d("RX2011", "onCreateOptionsMenu - onNext : $it")
+                        if (it.isNotEmpty()) {
+                            searchPhotApiCall(it.toString())
+                        }
                     },
                     onComplete = {
-                        Log.d(TAG, "onCreateOptionsMenu - onComplete")
+                        Log.d("RX2011", "onCreateOptionsMenu - onComplete")
                     },
                     onError = {
-                        Log.d(TAG, "onCreateOptionsMenu -  onError : $it")
+                        Log.d("RX2011", "onCreateOptionsMenu -  onError : $it")
                     }
                 )
 
